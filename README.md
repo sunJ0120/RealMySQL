@@ -5,7 +5,7 @@
 </p>
 
 <h3 align="center">
-  MySQL 정복하기
+  MySQL 정복하기<br>
   향후 RDBMS ST로 확장 가능성 있음 아마도....
 </h3>
 
