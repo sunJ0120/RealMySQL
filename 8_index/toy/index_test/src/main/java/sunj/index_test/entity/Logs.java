@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import sunj.index_test.domain.Level;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Slf4j
@@ -22,7 +23,7 @@ public class Logs {
     private Long id;
 
     @Column(nullable = false)
-    private Timestamp dateTime; //시간 범위 검색 실험
+    private LocalDateTime dateTime; //시간 범위 검색 실험
 
     @Column(nullable = false, length = 10)
     private Level level; //ERROR, WARN, INFO

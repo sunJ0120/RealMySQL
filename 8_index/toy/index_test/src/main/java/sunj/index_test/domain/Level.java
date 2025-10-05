@@ -1,5 +1,5 @@
 package sunj.index_test.domain;
 
 public enum Level {
-    ERROR, WARN, INFO
+    ERROR, WARN, INFO, DEBUG
 }
