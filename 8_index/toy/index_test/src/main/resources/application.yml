@@ -17,3 +17,6 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+        cache:
+          use_second_level_cache: false  # 정확한 인덱싱 측정을 위한 캐시 끄기
+          use_query_cache: false # default가 false로 되어 있음

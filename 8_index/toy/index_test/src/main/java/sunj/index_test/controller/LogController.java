@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import sunj.index_test.domain.Level;
 import sunj.index_test.domain.LogResponse;
+import sunj.index_test.domain.PerformanceTestResponse;
 import sunj.index_test.service.LogService;
 
 import java.time.LocalDateTime;
@@ -52,5 +53,14 @@ public class LogController {
 
     /**
      * GET /api/logs/performance : 인덱스 성능 테스트
+     *
+     * 인덱스 성능 테스트를 위한 api
+     * 이를 통해 인덱스를 생성했을때, 어떻게 생성했는지에 따른 시간을 측정하기 위함이다.
      */
+    @GetMapping("/performance")
+    public ResponseEntity<PerformanceTestResponse> performance(){
+        PerformanceTestResponse log = logService.performanceTest();
+
+        return ResponseEntity.ok(log);
+    }
 }
