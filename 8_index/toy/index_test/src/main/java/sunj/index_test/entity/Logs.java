@@ -1,5 +1,6 @@
 package sunj.index_test.entity;
 
+import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import sunj.index_test.domain.Level;
 
 import java.time.LocalDateTime;
+
+import static jakarta.persistence.EnumType.STRING;
 
 @Entity
 @Slf4j
@@ -25,6 +28,7 @@ public class Logs {
     private LocalDateTime dateTime; //시간 범위 검색 실험
 
     @Column(nullable = false, length = 10)
+    @Enumerated(STRING) //STRING으로 저장하도록 변환
     private Level level; //ERROR, WARN, INFO
 
     @Column(nullable = false, columnDefinition = "TEXT")

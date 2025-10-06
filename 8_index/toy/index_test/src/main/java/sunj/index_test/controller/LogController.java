@@ -1,14 +1,20 @@
 package sunj.index_test.controller;
 
+import jakarta.persistence.Column;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import sunj.index_test.domain.Level;
 import sunj.index_test.domain.LogResponse;
 import sunj.index_test.service.LogService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -29,7 +35,20 @@ public class LogController {
 
     /**
      * GET /api/logs/search : 조건별 검색
+     *
+     * 로그 조회의 핵심으로, 이를 통해 해당 요소를 인덱스로 설정했을때, 성능이 얼마나 빨라지는지를 알 수 있다.
      */
+    @GetMapping("/search")
+    public ResponseEntity<List<LogResponse>> search(
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime, //dateTime은 controller에서 변환해야 깔끔하다.
+            @RequestParam(required = false) Level level, //ENUM 타입 자동 반환
+            @RequestParam(required = false) String message,
+            @RequestParam(required = false) Long userId
+    ){
+        List<LogResponse> logs = logService.searchByConditions(dateTime, level, message, userId);
+
+        return ResponseEntity.ok(logs);
+    }
 
     /**
      * GET /api/logs/performance : 인덱스 성능 테스트
