@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sunj.index_test.domain.Level;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity

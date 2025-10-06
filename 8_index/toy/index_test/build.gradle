@@ -37,8 +37,20 @@ dependencies {
 
 	// env 읽기
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// QueryDSL 설정
+	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// QueryDSL 설정, 한 번 비워주고 Q클래스가 생길 수 있도록 해야 한다.
+clean {
+	delete file('src/main/generated')
+	delete file('build/generated')
 }
