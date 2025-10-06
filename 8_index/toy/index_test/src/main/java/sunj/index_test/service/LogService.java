@@ -69,7 +69,7 @@ public class LogService {
         // 3. message 검색
         entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
         startTime = System.currentTimeMillis();
-        List<Logs> messageLogs = logRepository.findByMessage("1");
+        List<Logs> messageLogs = logRepository.findByMessageStartingWith("가나디"); // LIKE '가나디%' 체크를 위해 StartingWith으로 한다.
         long messageSearchTime = System.currentTimeMillis() - startTime;
 
         // 복합 검색 (level + userId)
@@ -81,7 +81,7 @@ public class LogService {
         // 복합 검색 (level + message)
         entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
         startTime = System.currentTimeMillis();
-        List<Logs> levelAndMessageLogs = logRepository.findByLevelAndMessage(Level.ERROR, "1");
+        List<Logs> levelAndMessageLogs = logRepository.findByLevelAndMessageStartingWith(Level.ERROR, "가나디");
         long levelAndMessageSearchTime = System.currentTimeMillis() - startTime;
 
         return PerformanceTestResponse.builder()
