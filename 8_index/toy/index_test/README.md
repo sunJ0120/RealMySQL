@@ -1,95 +1,171 @@
-# 📊 대용량 로그 검색 시스템
+# 🚀 MySQL 인덱스 성능 최적화 프로젝트
 
-## 프로젝트 개요
-MySQL B-Tree 인덱스의 성능을 테스트하기 위한 대용량 로그 검색 시스템입니다.  
-천만 건 이상의 로그 데이터에서 B-Tree 인덱스의 검색 성능을 실험하고 최적화 방법을 학습합니다.
+## 📊 프로젝트 개요
+10만 건의 로그 데이터에서 MySQL 인덱스의 성능 영향을 정량적으로 분석한 학습 프로젝트입니다.  
+인덱스 유무에 따른 쿼리 성능 차이를 실제 측정하여 데이터베이스 최적화의 중요성을 학습했습니다.
 
-## 목적
-- B-Tree 인덱스 구조와 동작 원리 학습
-- 대용량 데이터에서의 인덱스 성능 측정
-- 복합 인덱스의 컬럼 순서에 따른 성능 차이 실험
-- Spring Data JPA 쿼리 최적화 학습
+## 🎯 핵심 성과
 
-## 기술 스택
-- **Backend**: Spring Boot 3.2
+### 최대 83배 성능 개선 달성
+
+| 검색 유형 | Before | After | 개선율 |
+|---------|--------|-------|--------|
+| **Message 검색** | 167ms | 2ms | **83배** 🥇 |
+| **UserId 검색** | 145ms | 3ms | **48배** |
+| **Level+Message 복합** | 189ms | 4ms | **47배** |
+| **Level+UserId 복합** | 132ms | 5ms | **26배** |
+| **Level 검색** | 691ms | 397ms | **1.7배** |
+
+**평균 약 41배의 성능 개선**
+
+## 💡 핵심 인사이트
+
+### 1. LIKE 패턴에 따른 극명한 차이
+```sql
+-- 인덱스 활용 가능
+LIKE '검색어%'  → 14ms  ✅
+
+-- 인덱스 무용지물  
+LIKE '%검색어%' → 218ms ❌
+
+→ 15배 성능 차이!
+```
+
+### 2. 카디널리티와 인덱스 효과
+- **높은 카디널리티** (결과 8개): 48배 개선
+- **낮은 카디널리티** (결과 24,975개): 1.7배 개선
+- 선택도가 높을수록 인덱스 효과 극대화
+
+### 3. 복합 인덱스 최적화
+- 결과가 적은 경우: 단일 인덱스로도 충분 (3~5ms)
+- MySQL이 효율적으로 인덱스 선택 및 활용
+
+## 🛠 기술 스택
+- **Backend**: Spring Boot 3.x, Java 17
 - **Database**: MySQL 8.0
-- **ORM**: Spring Data JPA / Hibernate
+- **ORM**: Spring Data JPA, Querydsl
 - **Build Tool**: Gradle
-- **Java Version**: 17
 
-### 주요 의존성
-- spring-boot-starter-web
-- spring-boot-starter-data-jpa
-- mysql-connector-java
-- lombok
-- spring-boot-starter-test
-
-## 프로젝트 구조
+## 📁 주요 구조
 ```
+├── controller/LogController.java    # 검색 및 성능 테스트 API
+├── service/LogService.java          # 성능 측정 로직
+├── repository/LogRepository.java    # JPA Repository
+├── domain/Logs.java                 # 로그 엔티티
+└── dto/PerformanceTestResponse.java # 성능 측정 결과
 ```
 
-## API 엔드포인트
-
-### 로그 검색 API
-- `GET /api/logs` - 전체 로그 조회
-- `GET /api/logs/search` - 조건별 검색
-- `GET /api/logs/performance` - 인덱스 성능 테스트
-- `POST /api/logs/generate` - 테스트 데이터 생성
-
-## 데이터베이스 스키마
+## 🗄️ 데이터베이스
 
 ### logs 테이블
-- **id**: Primary Key (BIGINT, AUTO_INCREMENT)
-- **timestamp**: 로그 발생 시간 (DATETIME)
-- **level**: 로그 레벨 (VARCHAR)
-- **service**: 서비스명 (VARCHAR)
-- **user_id**: 사용자 ID (BIGINT)
-- **message**: 로그 메시지 (TEXT)
-- **response_time**: 응답 시간 (INTEGER)
-
-### 인덱스 구성
-- Primary Key: id (클러스터드 인덱스)
-- idx_timestamp: timestamp 단일 인덱스
-- idx_user_service: (user_id, service) 복합 인덱스
-- idx_level_time: (level, timestamp) 복합 인덱스
-
-#### 실험용 인덱스 (컬럼 순서 비교)
-- idx_user_time: (user_id, timestamp) 복합 인덱스
-- idx_time_user: (timestamp, user_id) 복합 인덱스
-
-## 실험 내용
-
-### 1. 단일 컬럼 인덱스 성능
-- timestamp 범위 검색
-- user_id 동등 검색
-
-### 2. 복합 인덱스 컬럼 순서
-- (user_id, timestamp) vs (timestamp, user_id)
-- 선택도(Selectivity)에 따른 성능 차이
-
-### 3. 커버링 인덱스
-- 인덱스만으로 쿼리 처리
-- JPA 프로젝션 활용
-
-## 성능 테스트
-```bash
-# JUnit 테스트 실행
-./gradlew test
-
-# 특정 테스트만 실행
-./gradlew test --tests IndexPerformanceTest
+```sql
+CREATE TABLE logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp DATETIME NOT NULL,
+    level VARCHAR(10) NOT NULL,
+    user_id BIGINT,
+    message TEXT
+);
 ```
-## 시스템 요구사항
-- Java 17 이상
-- MySQL 8.0 이상
-- RAM: 최소 8GB (권장 16GB)
-- 디스크: 20GB 이상 여유 공간
 
-## 참고사항
-- 초기 실행 시 DataInitializer가 1000만 건의 테스트 데이터 생성
-- 모든 성능 측정은 JPA 2차 캐시 비활성화 상태에서 수행
-  - 이는 순수한 데이터베이스 인덱스 성능만을 측정하기 위함이다.
-- Query Plan은 MySQL EXPLAIN을 통해 확인
+### 적용한 인덱스
+```sql
+-- 단일 인덱스
+CREATE INDEX idx_logs_level ON logs(level);
+CREATE INDEX idx_logs_user_id ON logs(user_id);
+CREATE INDEX idx_logs_message ON logs(message(255));
 
-## License
+-- 복합 인덱스
+CREATE INDEX idx_logs_level_user_id ON logs(level, user_id);
+CREATE INDEX idx_logs_level_message ON logs(level, message(255));
+```
+
+## 🔬 API 엔드포인트
+
+### 조건별 검색
+```http
+GET /api/logs/search?level=ERROR&userId=1&message=검색어
+```
+
+### 성능 테스트
+```http
+GET /api/logs/performance
+```
+
+**Response:**
+```json
+{
+    "totalRecords": 100000,
+    "levelSearchTime": 397,
+    "userIdSearchTime": 3,
+    "messageSearchTime": 2,
+    "messageContainingSearchTime": 218,
+    "levelAndUserIdSearchTime": 5,
+    "levelAndMessageSearchTime": 4,
+    "levelSearchCount": 24975,
+    "userIdSearchCount": 8
+}
+```
+
+## 🧪 실험 방법
+
+### 정확한 성능 측정을 위한 설정
+```java
+// 1차 캐시 제거
+entityManager.clear();
+
+// 측정
+long startTime = System.currentTimeMillis();
+List<Logs> result = logRepository.findByLevel(Level.ERROR);
+long executionTime = System.currentTimeMillis() - startTime;
+```
+
+```yaml
+# 2차 캐시 비활성화
+spring.jpa.properties.hibernate.cache:
+  use_second_level_cache: false
+  use_query_cache: false
+```
+
+### 실행 계획 확인
+```sql
+EXPLAIN SELECT * FROM logs WHERE level = 'ERROR';
+-- type: ALL (Full Scan) → ref (Index 사용) 확인
+```
+
+## 📈 학습한 인덱스 설계 원칙
+
+1. **카디널리티가 높은 컬럼** 우선 인덱스 생성
+2. **WHERE 절에 자주 사용되는 컬럼** 선택
+3. **LIKE 패턴 주의**: 앞에 %가 있으면 인덱스 무용지물
+4. **TEXT 타입**: Prefix 인덱스 활용 (예: message(255))
+5. **복합 인덱스 순서**: 동등 조건 → 범위 조건
+
+## 🚀 실행 방법
+
+```bash
+# 1. 데이터베이스 설정
+mysql -u root -p
+CREATE DATABASE indextest;
+
+# 2. application.yml 설정
+spring.datasource.url=jdbc:mysql://localhost:3306/indextest
+
+# 3. 실행 (10만 건 자동 생성)
+./gradlew bootRun
+
+# 4. 성능 테스트
+curl http://localhost:8085/api/logs/performance
+```
+
+## 💻 시스템 요구사항
+- Java 17+
+- MySQL 8.0+
+- RAM 8GB+
+
+## 📚 참고 자료
+- Real MySQL 8.0 - 8장 인덱스
+- MySQL 공식 문서 - B-Tree Index
+
+## 📝 License
 MIT
