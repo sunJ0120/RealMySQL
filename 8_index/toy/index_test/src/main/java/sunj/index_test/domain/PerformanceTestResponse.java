@@ -20,6 +20,8 @@ public class PerformanceTestResponse {
     private Long levelSearchTime;
     private Long userIdSearchTime;
     private Long messageSearchTime;
+    // 추가) containing에서 인덱스 실험
+    private Long messageContainingSearchTime;
 
     // 복합 인덱스 테스트
     private Long levelAndUserIdSearchTime;

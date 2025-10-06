@@ -22,4 +22,6 @@ public interface LogRepository extends JpaRepository<Logs, Long>, LogQueryReposi
     List<Logs> findByLevelAndMessageStartingWith(Level level, String message);
 
     List<Logs> findByLevelAndMessageContaining(Level level, String message);
+
+    List<Logs> findByMessageContaining(String message);
 }

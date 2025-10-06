@@ -72,6 +72,13 @@ public class LogService {
         List<Logs> messageLogs = logRepository.findByMessageStartingWith("가나디"); // LIKE '가나디%' 체크를 위해 StartingWith으로 한다.
         long messageSearchTime = System.currentTimeMillis() - startTime;
 
+        // 3-2. message 검색 2
+        // 이번에는, 인덱스가 통하지 않는 contain으로 인덱스의 효과를 측정해보자.
+        entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
+        startTime = System.currentTimeMillis();
+        List<Logs> messageContainingLogs = logRepository.findByMessageContaining("가나디"); // LIKE '%가나디%' 체크를 위해 Containing으로 한다.
+        long messageContainingSearchTime = System.currentTimeMillis() - startTime;
+
         // 복합 검색 (level + userId)
         entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
         startTime = System.currentTimeMillis();
@@ -89,6 +96,7 @@ public class LogService {
                 .levelSearchTime(levelSearchTime)
                 .userIdSearchTime(userIdSearchTime)
                 .messageSearchTime(messageSearchTime)
+                .messageContainingSearchTime(messageContainingSearchTime) //인덱스가 안먹히는지 봐야 한다.
                 .levelAndUserIdSearchTime(levelAndUserIdSearchTime)
                 .levelAndMessageSearchTime(levelAndMessageSearchTime)
                 .levelSearchCount(errorLogs.size())
