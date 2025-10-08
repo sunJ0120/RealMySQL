@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import sunj.index_test.domain.FullIndexPerfomanceTestResponse;
 import sunj.index_test.domain.Level;
 import sunj.index_test.domain.LogResponse;
 import sunj.index_test.domain.PerformanceTestResponse;
@@ -103,6 +104,37 @@ public class LogService {
                 .userIdSearchCount(userLogs.size())
                 .levelAndUserIdSearchCount(levelAndUserIdLogs.size())
                 .testDescription("현재 인덱스 상태")
+                .build();
+    }
+
+    /**
+     * 전문 인덱스의 정확한 성능을 검수하기 위한 method
+     */
+    public FullIndexPerfomanceTestResponse fullIndexPerfomanceTest(String keyword){
+        long startTime; //성능 측정을 위한 시작 시간 명시
+
+        entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
+        startTime = System.currentTimeMillis();
+        List<Logs> likeSearchLogs = logRepository.findByMessageContaining(keyword); // LIKE '%keyword%' 체크를 위해 Containing으로 한다.
+        long likeSearchTime = System.currentTimeMillis() - startTime;
+
+        entityManager.clear(); // 각 테스트마다 독립적 측정을 위해 clear 해줘야 한다.
+        startTime = System.currentTimeMillis();
+        List<Logs> fullTextLogs = logRepository.searchByFullText(keyword);
+        long fullTextSearchTime = System.currentTimeMillis() - startTime;
+
+        // (이전 시간 - 현재 시간) / 이전 시간 * 100
+        double improvement = ((double)(likeSearchTime - fullTextSearchTime)
+                / likeSearchTime) * 100;
+
+        return FullIndexPerfomanceTestResponse.builder()
+                .keyword(keyword)
+                .likeSearchTime(likeSearchTime)
+                .likeResultCount(likeSearchLogs.size())
+                .fullTextSearchTime(fullTextSearchTime)
+                .fullTextResultCount(fullTextLogs.size())
+                .performanceImprovement(improvement)
+                .testDescription("현재 전문 인덱스 상태")
                 .build();
     }
 

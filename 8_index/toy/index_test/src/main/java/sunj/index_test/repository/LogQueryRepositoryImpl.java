@@ -1,6 +1,9 @@
 package sunj.index_test.repository;
 
+import com.querydsl.core.types.ConstantImpl;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -44,7 +47,6 @@ public class LogQueryRepositoryImpl implements LogQueryRepository{
         return logs.dateTime.goe(startOfDay)  // greater or equal (>=)
                 .and(logs.dateTime.lt(endOfDay));  // less than (<)
     }
-
     public BooleanExpression levelEq(Level level){
         return level != null ? logs.level.eq(level) : null;
     }

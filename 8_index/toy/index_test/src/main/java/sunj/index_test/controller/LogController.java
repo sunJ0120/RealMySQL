@@ -1,7 +1,5 @@
 package sunj.index_test.controller;
 
-import jakarta.persistence.Column;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import sunj.index_test.domain.FullIndexPerfomanceTestResponse;
 import sunj.index_test.domain.Level;
 import sunj.index_test.domain.LogResponse;
 import sunj.index_test.domain.PerformanceTestResponse;
@@ -60,6 +59,21 @@ public class LogController {
     @GetMapping("/performance")
     public ResponseEntity<PerformanceTestResponse> performance(){
         PerformanceTestResponse log = logService.performanceTest();
+
+        return ResponseEntity.ok(log);
+    }
+
+    /**
+     * GET /api/logs/performance/full : full 인덱스 성능 테스트
+     *
+     * 전문 인덱스 성능 테스트를 위한 api
+     * query param으로 키워드를 받아서 성능을 측정한다.
+     */
+    @GetMapping("/performance/full")
+    public ResponseEntity<FullIndexPerfomanceTestResponse> performanceWithFullIndex(
+            @RequestParam(required = false) String keyword
+    ){
+        FullIndexPerfomanceTestResponse log = logService.fullIndexPerfomanceTest(keyword);
 
         return ResponseEntity.ok(log);
     }
